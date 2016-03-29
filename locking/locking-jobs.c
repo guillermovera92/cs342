@@ -24,6 +24,7 @@
 #define THREAD_COUNT 2
 
 int64_t jobs_available = 1000000;
+pthread_mutex_t lock;
 
 void do_job(uint64_t job_id) {
   for (int i = 0; i < 5; i++) {
@@ -36,11 +37,15 @@ void *do_jobs(void *thread_id)
 {
   int64_t current_job = 0;
   while (true) {
+
+    pthread_mutex_lock(&lock);
     current_job = jobs_available;
+    jobs_available--;
+    pthread_mutex_unlock(&lock);
+
     if (current_job < 1) {
       break;
     }
-    jobs_available--;
 
     do_job(current_job);
   }
@@ -49,6 +54,8 @@ void *do_jobs(void *thread_id)
 }
 
 int main(int argc, char **argv) {
+  pthread_mutex_init(&lock, NULL);
+
   pthread_t threads[THREAD_COUNT];
   for (int i = 0; i < THREAD_COUNT; i++) {
     if (pthread_create(&threads[i], NULL, do_jobs, (void*)(long)i) != 0) {
