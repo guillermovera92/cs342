@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
+#include <ctype.h>
 #include "crypto-utils.h"
 
 char hexCharToByte(char aHexChar) {
@@ -43,7 +44,6 @@ char* hexStrToBytes(char* aHexStr, int* aOutLen) {
   for (int i = 0; i < inputLen; i = i + 2) {
     char char1 = aHexStr[i];
     char char2 = aHexStr[i + 1];
-
     char byte = 0;
 
     byte = hexCharToByte(char1) << 4;
@@ -51,6 +51,37 @@ char* hexStrToBytes(char* aHexStr, int* aOutLen) {
 
     outBuf[i / 2] = byte;
   }
-
   return outBuf;
+}
+
+char* xorBuffers(char *bufferOne, char *bufferTwo, int bufferOneLen, int bufferTwoLen) {
+  if (!bufferOne || !bufferTwo) {
+    return NULL;
+  } 
+
+  if (bufferOneLen != bufferTwoLen) {
+    return NULL;
+  }
+
+  int bufferLen = bufferOneLen;
+  char *xoredBuffer = malloc(bufferLen);
+  for (int i = 0; i < bufferLen; i++) {
+    xoredBuffer[i] = bufferOne[i] ^ bufferTwo[i];
+  }
+
+  return xoredBuffer;
+}
+
+int scoreStr(char *str, int bytesLen) {
+  int score = 0;
+  for (int i = 0; i < bytesLen; i++) {
+            if (isalnum(str[i])) {
+                score++;
+            } else if (str[i] == ' ') {
+                score += 2;
+            } else {
+                score--;
+            }
+        }
+  return score;
 }
