@@ -67,5 +67,7 @@ int main(int argc, char **argv) {
     pthread_join(threads[i], NULL);
   }
 
+  pthread_mutex_destroy(&lock);
+
   return 0;
 }
